@@ -1,0 +1,37 @@
+#include <stdio.h>
+
+int main() {
+    int n;
+    
+    // Read the input integer
+    if (scanf("%d", &n) != 1) {
+        return 1;
+    }
+    
+    // The size of the grid is always (2 * n - 1)
+    int size = 2 * n - 1;
+    
+    // Loop through each row
+    for (int i = 0; i < size; i++) {
+        // Loop through each column
+        for (int j = 0; j < size; j++) {
+            // Find the minimum distance to any of the 4 edges
+            int top = i;
+            int bottom = size - 1 - i;
+            int left = j;
+            int right = size - 1 - j;
+            
+            int min = top;
+            if (bottom < min) min = bottom;
+            if (left < min) min = left;
+            if (right < min) min = right;
+            
+            // The value at the current cell is n minus the minimum distance
+            printf("%d ", n - min);
+        }
+        // Move to the next line after completing a row
+        printf("\n");
+    }
+    
+    return 0;
+}
