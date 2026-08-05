@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n;
+    // Read the size of the array
+    if (scanf("%d", &n) != 1) return 0;
+
+    // Dynamically allocate memory for the array
+    int *arr = (int*)malloc(n * sizeof(int));
+
+    // Read the elements of the array
+    for (int i = 0; i < n; i++) {
+        if (scanf("%d", &arr[i]) != 1) return 0;
+    }
+
+    /* Write the logic to reverse the array. */
+    int start = 0;
+    int end = n - 1;
+    while (start < end) {
+        // Swap elements at start and end
+        int temp = arr[start];
+        arr[start] = arr[end];
+        arr[end] = temp;
+        
+        // Move pointers closer to the center
+        start++;
+        end--;
+    }
+
+    // Print the reversed array elements
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    // Free the allocated memory
+    free(arr);
+    
+    return 0;
+}
