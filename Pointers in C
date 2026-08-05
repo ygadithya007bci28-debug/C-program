@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void update(int *a, int *b) {
+    int original_a = *a;
+    
+    // Calculate new value for a
+    *a = original_a + *b;
+    
+    // Calculate new value for b (absolute difference)
+    *b = abs(original_a - *b);
+}
+
+int main() {
+    int a, b;
+    
+    // Read input values
+    if (scanf("%d %d", &a, &b) == 2) {
+        // Call the update function using memory addresses
+        update(&a, &b);
+        
+        // Print the modified values
+        printf("%d\n%d\n", a, b);
+    }
+    
+    return 0;
+}
