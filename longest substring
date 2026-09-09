@@ -1,0 +1,29 @@
+#include <string.h>
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int lengthOfLongestSubstring(char* s) {
+    // Array to store the last seen index of each character (+1 to use 0 as a default marker)
+    // 128 covers all standard ASCII characters (letters, digits, symbols, spaces)
+    int lastPos[128] = {0}; 
+    
+    int maxLength = 0;
+    int left = 0; // Left boundary of the sliding window
+
+    for (int right = 0; s[right] != '\0'; right++) {
+        char currentChar = s[right];
+
+        // If the character was seen before inside the current window, move the left boundary
+        if (lastPos[(unsigned char)currentChar] > left) {
+            left = lastPos[(unsigned char)currentChar];
+        }
+
+        // Calculate current window size and update max length
+        maxLength = MAX(maxLength, right - left + 1);
+
+        // Record the position of the character (using 1-based index to differentiate from initial 0)
+        lastPos[(unsigned char)currentChar] = right + 1;
+    }
+
+    return maxLength;
+}
