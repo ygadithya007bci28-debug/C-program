@@ -1,0 +1,25 @@
+#include <stdio.h>
+
+int countStudents(int* students, int studentsSize, int* sandwiches, int sandwichesSize) {
+    int count[2] = {0}; // count[0] for circular, count[1] for square
+    
+    // Count the preferences of all students
+    for (int i = 0; i < studentsSize; i++) {
+        count[students[i]]++;
+    }
+    
+    // Serve sandwiches one by one
+    for (int i = 0; i < sandwichesSize; i++) {
+        int current_sandwich = sandwiches[i];
+        
+        // If no student left wants this sandwich, the queue stalls completely
+        if (count[current_sandwich] == 0) {
+            return sandwichesSize - i;
+        }
+        
+        // A student takes the sandwich and leaves
+        count[current_sandwich]--;
+    }
+    
+    return 0; // All students successfully ate
+}
