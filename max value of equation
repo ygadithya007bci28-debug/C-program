@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+// Structure to represent an element in the deque
+typedef struct {
+    int diff; // Stores (y_i - x_i)
+    int x;    // Stores x_i
+} DequeNode;
+
+int findMaxValueOfEquation(int** points, int pointsSize, int* pointsColSize, int k) {
+    // Dynamically allocate memory for the deque
+    DequeNode* dq = (DequeNode*)malloc(pointsSize * sizeof(DequeNode));
+    int head = 0;
+    int tail = 0;
+    int max_val = INT_MIN;
+
+    for (int j = 0; j < pointsSize; j++) {
+        int xj = points[j][0];
+        int yj = points[j][1];
+
+        // 1. Remove elements from the front if they are outside the x-range: x_j - x_i > k
+        while (head < tail && (xj - dq[head].x) > k) {
+            head++;
+        }
+
+        // 2. If the deque is not empty, compute the maximum equation value
+        if (head < tail) {
+            max_val = MAX(max_val, (yj + xj) + dq[head].diff);
+        }
+
+        // 3. Maintain monotonic decreasing order of diff in the deque
+        int current_diff = yj - xj;
+        while (head < tail && dq[tail - 1].diff <= current_diff) {
+            tail--;
+        }
+
+        // 4. Push the current point info into the deque
+        dq[tail].diff = current_diff;
+        dq[tail].x = xj;
+        tail++;
+    }
+
+    // Free the allocated memory
+    free(dq);
+
+    return max_val;
+}
