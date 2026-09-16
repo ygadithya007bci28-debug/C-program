@@ -1,0 +1,169 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Doubly Linked List Node Definition
+typedef struct Node {
+    int val;
+    struct Node* prev;
+    struct Node* next;
+} Node;
+
+// Deque Structure
+typedef struct {
+    Node* head;
+    Node* tail;
+    int size;
+} Deque;
+
+// Helper: Create a new Deque
+Deque* createDeque() {
+    Deque* dq = (Deque*)malloc(sizeof(Deque));
+    dq->head = (Node*)malloc(sizeof(Node));
+    dq->tail = (Node*)malloc(sizeof(Node));
+    dq->head->next = dq->tail;
+    dq->head->prev = NULL;
+    dq->tail->prev = dq->head;
+    dq->tail->next = NULL;
+    dq->size = 0;
+    return dq;
+}
+
+// Helper: Push to front
+void pushFront(Deque* dq, int val) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->val = val;
+    newNode->next = dq->head->next;
+    newNode->prev = dq->head;
+    dq->head->next->prev = newNode;
+    dq->head->next = newNode;
+    dq->size++;
+}
+
+// Helper: Push to back
+void pushBack(Deque* dq, int val) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->val = val;
+    newNode->prev = dq->tail->prev;
+    newNode->next = dq->tail;
+    dq->tail->prev->next = newNode;
+    dq->tail->prev = newNode;
+    dq->size++;
+}
+
+// Helper: Pop from front
+int popFront(Deque* dq) {
+    if (dq->size == 0) return -1;
+    Node* target = dq->head->next;
+    int val = target->val;
+    dq->head->next = target->next;
+    target->next->prev = dq->head;
+    free(target);
+    dq->size--;
+    return val;
+}
+
+// Helper: Pop from back
+int popBack(Deque* dq) {
+    if (dq->size == 0) return -1;
+    Node* target = dq->tail->prev;
+    int val = target->val;
+    dq->tail->prev = target->prev;
+    target->prev->next = dq->tail;
+    free(target);
+    dq->size--;
+    return val;
+}
+
+// Main structure for our custom queue
+typedef struct {
+    Deque* left;
+    Deque* right;
+} FrontMiddleBackQueue;
+
+// Balance logic: maintains left->size == right->size OR left->size == right->size - 1
+void balance(FrontMiddleBackQueue* obj) {
+    if (obj->left->size > obj->right->size) {
+        int val = popBack(obj->left);
+        pushFront(obj->right, val);
+    } else if (obj->right->size > obj->left->size + 1) {
+        int val = popFront(obj->right);
+        pushBack(obj->left, val);
+    }
+}
+
+FrontMiddleBackQueue* frontMiddleBackQueueCreate() {
+    FrontMiddleBackQueue* obj = (FrontMiddleBackQueue*)malloc(sizeof(FrontMiddleBackQueue));
+    obj->left = createDeque();
+    obj->right = createDeque();
+    return obj;
+}
+
+void frontMiddleBackQueuePushFront(FrontMiddleBackQueue* obj, int val) {
+    pushFront(obj->left, val);
+    balance(obj);
+}
+
+void frontMiddleBackQueuePushMiddle(FrontMiddleBackQueue* obj, int val) {
+    if (obj->left->size == obj->right->size) {
+        pushFront(obj->right, val);
+    } else {
+        pushBack(obj->left, val);
+    }
+    balance(obj);
+}
+
+void frontMiddleBackQueuePushBack(FrontMiddleBackQueue* obj, int val) {
+    pushBack(obj->right, val);
+    balance(obj);
+}
+
+int frontMiddleBackQueuePopFront(FrontMiddleBackQueue* obj) {
+    if (obj->left->size == 0 && obj->right->size == 0) return -1;
+    int val;
+    if (obj->left->size > 0) {
+        val = popFront(obj->left);
+    } else {
+        val = popFront(obj->right);
+    }
+    balance(obj);
+    return val;
+}
+
+int frontMiddleBackQueuePopMiddle(FrontMiddleBackQueue* obj) {
+    if (obj->left->size == 0 && obj->right->size == 0) return -1;
+    int val;
+    // If total size is even, the frontmost middle element is at the back of left
+    if (obj->left->size == obj->right->size) {
+        val = popBack(obj->left);
+    } else { // If total size is odd, the middle element is at the front of right
+        val = popFront(obj->right);
+    }
+    balance(obj);
+    return val;
+}
+
+int frontMiddleBackQueuePopBack(FrontMiddleBackQueue* obj) {
+    if (obj->left->size == 0 && obj->right->size == 0) return -1;
+    int val = popBack(obj->right);
+    balance(obj);
+    return val;
+}
+
+// Memory Cleanup
+void freeDeque(Deque* dq) {
+    Node* curr = dq->head;
+    while (curr != NULL) {
+        Node* next = curr->next;
+        free(curr);
+        curr = next;
+    }
+    free(dq);
+}
+
+void frontMiddleBackQueueFree(FrontMiddleBackQueue* obj) {
+    if (obj) {
+        freeDeque(obj->left);
+        freeDeque(obj->right);
+        free(obj);
+    }
+}
