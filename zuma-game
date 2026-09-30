@@ -1,0 +1,112 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define INF 6
+
+// Function to clean/remove consecutive balls of length >= 3
+char* clean(char* s) {
+    int changed = 1;
+    char* res = strdup(s);
+    while (changed) {
+        changed = 0;
+        int n = strlen(res);
+        int i = 0, j = 0;
+        char* temp = malloc(n + 1);
+        int k = 0;
+        
+        while (i < n) {
+            j = i;
+            while (j < n && res[j] == res[i]) j++;
+            if (j - i >= 3) {
+                changed = 1;
+            } else {
+                for (int p = i; p < j; p++) {
+                    temp[k++] = res[p];
+                }
+            }
+            i = j;
+        }
+        temp[k] = '\0';
+        free(res);
+        res = temp;
+    }
+    return res;
+}
+
+// Helper DFS function
+int dfs(char* board, char* hand) {
+    if (strlen(board) == 0) return 0;
+    if (strlen(hand) == 0) return INF;
+    
+    int min_balls = INF;
+    int h_len = strlen(hand);
+    
+    for (int i = 0; i <= strlen(board); i++) {
+        // Optimization: Don't insert if it's the same as the previous board character
+        if (i > 0 && board[i - 1] == board[i]) continue;
+        
+        for (int j = 0; j < h_len; j++) {
+            // Optimization: Skip duplicate colored balls in hand
+            int skip = 0;
+            for (int k = 0; k < j; k++) {
+                if (hand[k] == hand[j]) { skip = 1; break; }
+            }
+            if (skip) continue;
+            
+            // Construct new board
+            int b_len = strlen(board);
+            char* next_board = malloc(b_len + 2);
+            strncpy(next_board, board, i);
+            next_board[i] = hand[j];
+            strcpy(next_board + i + 1, board + i);
+            
+            char* cleaned_board = clean(next_board);
+            free(next_board);
+            
+            // Construct new hand
+            char* next_hand = malloc(h_len);
+            int idx = 0;
+            for (int k = 0; k < h_len; k++) {
+                if (k != j) next_hand[idx++] = hand[k];
+            }
+            next_hand[idx] = '\0';
+            
+            int res = dfs(cleaned_board, next_hand);
+            if (res != INF) {
+                if (res + 1 < min_balls) min_balls = res + 1;
+            }
+            
+            free(cleaned_board);
+            free(next_hand);
+        }
+    }
+    
+    return min_balls;
+}
+
+int findMinStep(char* board, char* hand) {
+    // Sort hand to make duplicate handling easier
+    int h_len = strlen(hand);
+    char* sorted_hand = strdup(hand);
+    for (int i = 0; i < h_len - 1; i++) {
+        for (int j = i + 1; j < h_len; j++) {
+            if (sorted_hand[i] > sorted_hand[j]) {
+                char temp = sorted_hand[i];
+                sorted_hand[i] = sorted_hand[j];
+                sorted_hand[j] = temp;
+            }
+        }
+    }
+    
+    int ans = dfs(board, sorted_hand);
+    free(sorted_hand);
+    return ans == INF ? -1 : ans;
+}
+
+int main() {
+    char board[] = "WWRRBBWW";
+    char hand[] = "WRBRW";
+    printf("Output: %d\n", findMinStep(board, hand));
+    return 0;
+}
