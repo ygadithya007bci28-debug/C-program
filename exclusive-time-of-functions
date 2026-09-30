@@ -1,0 +1,51 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+/*
+1) Init stack
+2) Read log. Keep track of last_time
+    - Read log (read current_time):
+        - On "start"
+            - Award current top ID += current_time - last_time
+            - Push new ID
+        - On "finish"
+            - Award current top ID += current_time - last_time + 1 (!!!)
+            - Pop new ID
+    - last_time = current_time
+3) free(stack);
+*/
+#include <stdlib.h>
+#include <stdio.h>
+
+int* exclusiveTime(int n, char** logs, int logsSize, int* returnSize) {
+    int* ans = calloc(n, sizeof(int));
+    *returnSize = n;
+
+    int *stack = malloc(logsSize * sizeof(int));
+    int top = -1;
+
+    int id, current_time;
+    char type[6];
+
+    int last_time = 0;
+
+    for (int i = 0; i < logsSize; i++) {
+        sscanf(logs[i], "%d:%5[^:]:%d", &id, type, &current_time);
+        //printf("%d\n%s\n%d\n", id, type, time);
+        if (type[0] == 's') {
+            if (top != -1) {
+                ans[stack[top]] += current_time - last_time;
+            }
+            stack[++top] = id;
+            last_time = current_time;
+        } else {
+            ans[stack[top]] += current_time - last_time + 1;
+            top--;
+            last_time = current_time + 1;
+        }
+    }
+    
+    free(stack);
+    return ans;
+}
