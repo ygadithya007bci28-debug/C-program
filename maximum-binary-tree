@@ -1,0 +1,32 @@
+struct TreeNode* newTreeNode(int, struct TreeNode*, struct TreeNode*);
+struct TreeNode* build( int*, int, int );
+
+struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize) {
+    return build(nums, 0, numsSize-1);
+}
+
+struct TreeNode* build( int* nums, int start, int end )
+{
+    if ( end < start )
+        return NULL;
+    
+    int max_idx = 0, max_num = INT_MIN;
+    for (int i=start; i <= end; i++ ) {
+        if ( nums[i] > max_num ) {
+            max_num = nums[i];
+            max_idx = i;
+        }
+    }
+
+    struct TreeNode* cur_node = newTreeNode( max_num, 
+                                build( nums, start, max_idx-1 ), 
+                                build( nums, max_idx+1, end ) );
+    return cur_node;
+}
+
+struct TreeNode* newTreeNode(int val, struct TreeNode* left, struct TreeNode* right)
+{
+    struct TreeNode* node = (struct TreeNode*) malloc(sizeof(struct TreeNode));
+    *node = (struct TreeNode) { .val=val, .left=left, .right=right };
+    return node;
+}
