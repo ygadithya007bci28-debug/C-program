@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+// --- Standard Stack Implementation ---
+typedef struct {
+    int* data;
+    int top;
+} Stack;
+
+Stack* createStack(int capacity) {
+    Stack* s = (Stack*)malloc(sizeof(Stack));
+    s->data = (int*)malloc(capacity * sizeof(int));
+    s->top = -1;
+    return s;
+}
+
+void stackPush(Stack* s, int val) {
+    s->data[++(s->top)] = val;
+}
+
+int stackPop(Stack* s) {
+    return s->data[(s->top)--];
+}
+
+int stackPeek(Stack* s) {
+    return s->data[s->top];
+}
+
+bool isStackEmpty(Stack* s) {
+    return s->top == -1;
+}
+
+void freeStack(Stack* s) {
+    free(s->data);
+    free(s);
+}
+
+// --- MyQueue Implementation Using Two Stacks ---
+typedef struct {
+    Stack* inputStack;
+    Stack* outputStack;
+} MyQueue;
+
+// Initializes the queue object
+MyQueue* myQueueCreate() {
+    MyQueue* obj = (MyQueue*)malloc(sizeof(MyQueue));
+    // Problem constraints state at most 100 calls
+    obj->inputStack = createStack(105);
+    obj->outputStack = createStack(105);
+    return obj;
+}
+
+// Pushes element x to the back of the queue
+void myQueuePush(MyQueue* obj, int x) {
+    stackPush(obj->inputStack, x);
+}
+
+// Helper method to transfer elements when the output stack runs dry
+void shiftStacks(MyQueue* obj) {
+    if (isStackEmpty(obj->outputStack)) {
+        while (!isStackEmpty(obj->inputStack)) {
+            stackPush(obj->outputStack, stackPop(obj->inputStack));
+        }
+    }
+}
+
+// Removes the element from the front of the queue and returns it
+int myQueuePop(MyQueue* obj) {
+    shiftStacks(obj);
+    return stackPop(obj->outputStack);
+}
+
+// Returns the element at the front of the queue
+int myQueuePeek(MyQueue* obj) {
+    shiftStacks(obj);
+    return stackPeek(obj->outputStack);
+}
+
+// Returns true if the queue is empty, false otherwise
+bool myQueueEmpty(MyQueue* obj) {
+    return isStackEmpty(obj->inputStack) && isStackEmpty(obj->outputStack);
+}
+
+// Frees the allocated memory
+void myQueueFree(MyQueue* obj) {
+    freeStack(obj->inputStack);
+    freeStack(obj->outputStack);
+    free(obj);
+}
