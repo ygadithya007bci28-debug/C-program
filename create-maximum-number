@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+// Helper function to extract the maximum subsequence of a given length from an array using a monotonic stack
+int* maxSubarray(int* nums, int numsSize, int k) {
+    int* stack = (int*)malloc(k * sizeof(int));
+    int top = -1;
+    int drop = numsSize - k; // Number of elements we are allowed to drop
+
+    for (int i = 0; i < numsSize; i++) {
+        while (top >= 0 && stack[top] < nums[i] && drop > 0) {
+            top--;
+            drop--;
+        }
+        if (top < k - 1) {
+            stack[++top] = nums[i];
+        } else {
+            drop--; // Array is full, drop the current element
+        }
+    }
+    return stack;
+}
+
+// Compare two suffixes to determine which is larger (Lexicographical lookahead)
+bool greater(int* nums1, int size1, int i, int* nums2, int size2, int j) {
+    while (i < size1 && j < size2 && nums1[i] == nums2[j]) {
+        i++;
+        j++;
+    }
+    return j == size2 || (i < size1 && nums1[i] > nums2[j]);
+}
+
+// Merge two subsequences greedily by picking the lexicographically larger choice at each step
+int* merge(int* nums1, int size1, int* nums2, int size2, int k) {
+    int* result = (int*)malloc(k * sizeof(int));
+    int i = 0, j = 0, r = 0;
+    
+    while (r < k) {
+        if (greater(nums1, size1, i, nums2, size2, j)) {
+            result[r++] = nums1[i++];
+        } else {
+            result[r++] = nums2[j++];
+        }
+    }
+    return result;
+}
+
+// Main function to return the maximum number of length k
+int* maxNumber(int* nums1, int nums1Size, int* nums2, int nums2Size, int k, int* returnSize) {
+    *returnSize = k;
+    int* maxResult = (int*)calloc(k, sizeof(int));
+    
+    // Determine bounds for how many elements we can choose from nums1
+    int start = (k - nums2Size > 0) ? k - nums2Size : 0;
+    int end = (k < nums1Size) ? k : nums1Size;
+    
+    for (int i = start; i <= end; i++) {
+        int* sub1 = maxSubarray(nums1, nums1Size, i);
+        int* sub2 = maxSubarray(nums2, nums2Size, k - i);
+        
+        int* merged = merge(sub1, i, sub2, k - i, k);
+        
+        // Track the overall lexicographically largest sequence
+        if (greater(merged, k, 0, maxResult, k, 0)) {
+            memcpy(maxResult, merged, k * sizeof(int));
+        }
+        
+        free(sub1);
+        free(sub2);
+        free(merged);
+    }
+    
+    return maxResult;
+}
