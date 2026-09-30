@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+bool isValidSerialization(char* preorder) {
+    int slots = 1; // Start with 1 slot for the root node
+    int len = strlen(preorder);
+    
+    for (int i = 0; i < len; i++) {
+        // Skip commas
+        if (preorder[i] == ',') {
+            continue;
+        }
+        
+        // Every token (whether node or '#') consumes 1 slot
+        slots--;
+        
+        // If we run out of slots before finishing the traversal, it's invalid
+        if (slots < 0) {
+            return false;
+        }
+        
+        // Check if the current token is a non-null node
+        if (preorder[i] != '#') {
+            // Add 2 new slots for the children
+            slots += 2;
+            
+            // Numbers can have multiple digits (e.g., "100"), so skip ahead 
+            // until we hit the next comma or the end of the string
+            while (i < len && preorder[i] != ',') {
+                i++;
+            }
+            i--; // Step back by 1 so the outer loop doesn't skip the comma check
+        }
+    }
+    
+    // A valid tree must use up all slots exactly
+    return slots == 0;
+}
