@@ -1,0 +1,70 @@
+ struct ListNode {
+     int val;
+     struct ListNode *next;
+}
+
+typedef struct ListNode *Node;
+
+bool isPalindrome(Node head);
+void reverseTill(Node head, 
+                 int k, 
+                 Node *left_head_ptr, 
+                 Node *right_head_ptr);
+void repairList(Node left_head, Node right_head);
+int length(Node head);
+
+bool isPalindrome(Node head) {
+    int n = length(head);
+
+    Node left_head;
+    Node right_head;
+    reverseTill(head, n/2, &left_head, &right_head);
+    
+    Node L = left_head;
+    Node R = right_head;
+    
+    if (n % 2 == 1) {
+        R = R->next;
+    }
+    
+    while (L || R) {
+        if (L->val != R->val) {
+            repairList(left_head, right_head);
+            return false;
+        }
+        L = L->next;
+        R = R->next;
+    }
+    
+    repairList(left_head, right_head);
+    return true;    
+}
+
+void reverseTill(Node head, int k, Node *left_head_ptr, Node *right_head_ptr) {
+    Node previous = NULL;
+    for (int i = 0; i < k && head; i++) {
+        Node temp = head->next;
+        head->next = previous;
+        previous = head;
+        head = temp;
+    }
+    *left_head_ptr = previous;
+    *right_head_ptr = head;
+}
+
+void repairList(Node left_head, Node right_head) {
+    while (left_head) {
+        Node temp = left_head->next;
+        left_head->next = right_head;
+        right_head = left_head;
+        left_head = temp;
+    }
+}
+
+int length(Node head) {
+    int i;
+    for (i = 0; head; i++) {
+        head = head->next;
+    }
+    return i;
+}
