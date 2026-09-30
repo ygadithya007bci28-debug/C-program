@@ -1,0 +1,37 @@
+#include <stdlib.h>
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* nextGreaterElements(int* nums, int numsSize, int* returnSize) {
+    *returnSize = numsSize;
+    int* result = (int*)malloc(numsSize * sizeof(int));
+    
+    // Initialize all elements in the result array to -1
+    for (int i = 0; i < numsSize; i++) {
+        result[i] = -1;
+    }
+    
+    // Stack to store the indices of the elements
+    int* stack = (int*)malloc(2 * numsSize * sizeof(int));
+    int top = -1; // Stack pointer
+    
+    // We simulate a circular array by traversing up to 2 * numsSize - 1
+    for (int i = 0; i < 2 * numsSize; i++) {
+        int currentIndex = i % numsSize;
+        
+        // While stack is not empty and the current element is greater than the element at the stack's top index
+        while (top != -1 && nums[currentIndex] > nums[stack[top]]) {
+            int targetIndex = stack[top--];
+            result[targetIndex] = nums[currentIndex];
+        }
+        
+        // Only push indices from the first pass to avoid redundant work
+        if (i < numsSize) {
+            stack[++top] = currentIndex;
+        }
+    }
+    
+    free(stack);
+    return result;
+}
