@@ -1,0 +1,33 @@
+#include <stdlib.h>
+
+int* nextGreaterElement(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize) {
+    *returnSize = nums1Size;
+    int* ans = (int*)malloc(nums1Size * sizeof(int));
+    
+    // Hash map to store the next greater element for each value in nums2
+    // Given constraints: values are between 0 and 10000
+    int map[10001];
+    for (int i = 0; i <= 10000; i++) {
+        map[i] = -1;
+    }
+    
+    // Monotonic stack to track next greater elements
+    int stack[1000];
+    int top = -1;
+    
+    for (int i = 0; i < nums2Size; i++) {
+        while (top >= 0 && stack[top] < nums2[i]) {
+            map[stack[top]] = nums2[i];
+            top--;
+        }
+        top++;
+        stack[top] = nums2[i];
+    }
+    
+    // Build the result for nums1
+    for (int i = 0; i < nums1Size; i++) {
+        ans[i] = map[nums1[i]];
+    }
+    
+    return ans;
+}
