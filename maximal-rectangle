@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Helper function to find the largest rectangle in a 1D histogram
+int largestRectangleArea(int* heights, int heightsSize) {
+    int* stack = (int*)malloc((heightsSize + 1) * sizeof(int));
+    int top = -1;
+    int max_area = 0;
+    
+    for (int i = 0; i <= heightsSize; i++) {
+        int current_height = (i == heightsSize) ? 0 : heights[i];
+        
+        while (top != -1 && heights[stack[top]] > current_height) {
+            int h = heights[stack[top--]];
+            int w = (top == -1) ? i : (i - stack[top] - 1); 
+            int current_area = h * w;
+            if (current_area > max_area) {
+                max_area = current_area;
+            }
+        }
+        stack[++top] = i;
+    }
+    
+    free(stack);
+    return max_area;
+}
+
+int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize) {
+    if (matrixSize == 0 || matrixColSize == 0 || matrixColSize[0] == 0) {
+        return 0;
+    }
+    
+    int rows = matrixSize;
+    int cols = matrixColSize[0];
+    int max_maximal_area = 0;
+    
+    // Allocate and initialize heights array to 0
+    int* heights = (int*)calloc(cols, sizeof(int));
+    
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            // If character is '1', add to height; otherwise, reset to 0
+            if (matrix[i][j] == '1') {
+                heights[j]++;
+            } else {
+                heights[j] = 0;
+            }
+        }
+        
+        // Calculate max area for the current row's histogram
+        int area = largestRectangleArea(heights, cols);
+        if (area > max_maximal_area) {
+            max_maximal_area = area;
+        }
+    }
+    
+    free(heights);
+    return max_maximal_area;
+}
