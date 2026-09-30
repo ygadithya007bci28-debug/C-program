@@ -1,0 +1,32 @@
+#include <stdio.h>
+
+// Definition for a binary tree node
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+};
+
+void flatten(struct TreeNode* root) {
+    struct TreeNode* curr = root;
+    
+    while (curr != NULL) {
+        if (curr->left != NULL) {
+            // Find the rightmost node in the left subtree
+            struct TreeNode* pre = curr->left;
+            while (pre->right != NULL) {
+                pre = pre->right;
+            }
+            
+            // Wire the current right subtree to the predecessor's right
+            pre->right = curr->right;
+            
+            // Move the left subtree to the right side
+            curr->right = curr->left;
+            curr->left = NULL; // Clear out the left pointer
+        }
+        
+        // Move to the next node in the flattened chain
+        curr = curr->right;
+    }
+}
