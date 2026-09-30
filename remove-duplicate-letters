@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+char* removeDuplicateLetters(char* s) {
+    int len = strlen(s);
+    
+    // Track the last occurrence index of each character
+    int lastOccurrence[26] = {0};
+    for (int i = 0; i < len; i++) {
+        lastOccurrence[s[i] - 'a'] = i;
+    }
+    
+    // Track whether a character is already present inside our stack
+    bool inStack[26] = {false};
+    
+    // Character array acting as our monotonic stack
+    char* stack = (char*)malloc((len + 1) * sizeof(char));
+    int top = -1;
+    
+    for (int i = 0; i < len; i++) {
+        char c = s[i];
+        int idx = c - 'a';
+        
+        // If the character is already in our result stack, skip it
+        if (inStack[idx]) {
+            continue;
+        }
+        
+        // Greedy Check: Pop characters from the stack if:
+        // 1. The stack is not empty.
+        // 2. The top of the stack is lexicographically greater than the current character 'c'.
+        // 3. The top character appears again later in the string (index < lastOccurrence).
+        while (top >= 0 && stack[top] > c && i < lastOccurrence[stack[top] - 'a']) {
+            inStack[stack[top] - 'a'] = false; // Mark popped character as no longer in stack
+            top--;
+        }
+        
+        // Push the current character onto the stack and mark it as visited
+        stack[++top] = c;
+        inStack[idx] = true;
+    }
+    
+    // Add null terminator to convert stack array into a valid C-string
+    stack[++top] = '\0';
+    
+    return stack;
+}
