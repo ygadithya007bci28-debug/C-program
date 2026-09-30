@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int evalRPN(char** tokens, int tokensSize) {
+    // Allocate space for the stack (maximum size will not exceed tokensSize)
+    int* stack = (int*)malloc(tokensSize * sizeof(int));
+    int top = -1;
+
+    for (int i = 0; i < tokensSize; i++) {
+        char* token = tokens[i];
+
+        // Safely check if the token is a single-character operator
+        if (token[1] == '\0' && (token[0] == '+' || token[0] == '-' || token[0] == '*' || token[0] == '/')) {
+            // Pop the right operand first (LIFO order)
+            int b = stack[top--];
+            // Pop the left operand second
+            int a = stack[top--];
+
+            int result = 0;
+            switch (token[0]) {
+                case '+': result = a + b; break;
+                case '-': result = a - b; break;
+                case '*': result = a * b; break;
+                case '/': result = a / b; break; // Natively truncates toward zero in C99+
+            }
+            // Push the result back onto the stack
+            stack[++top] = result;
+        } else {
+            // If it's a number (positive or negative), convert string to integer and push
+            stack[++top] = atoi(token);
+        }
+    }
+
+    int finalResult = stack[top];
+    free(stack); // Avoid memory leaks
+    return finalResult;
+}
