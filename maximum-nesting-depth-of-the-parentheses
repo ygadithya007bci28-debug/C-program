@@ -1,0 +1,15 @@
+#pragma GCC optimize("O3", "unroll-loops")
+int maxDepth(char* s) {
+    int ans=0, p=0;
+    for(register int i=0; s[i]!='\0'; i++){
+        int c=s[i];
+        switch(c){
+            case '(': 
+                p++;
+                ans=(ans<p)?p:ans;
+            break;
+            case ')': p--; break;
+        }
+    }
+    return ans;
+}
