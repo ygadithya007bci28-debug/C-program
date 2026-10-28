@@ -1,0 +1,25 @@
+class Solution {
+public:
+    vector<double> getCollisionTimes(vector<vector<int>>& cars) {
+        int n=cars.size();
+        vector<double>ans(n,-1.0);
+        vector<int>st;
+        for(int i=n-1;i>=0;i--){
+            int s1=cars[i][1], p1=cars[i][0];
+            while(!st.empty()){
+                int j=st.back();
+                int s2=cars[j][1],p2=cars[j][0];
+                if(s1<=s2 || ((double)(p2-p1)/(s1-s2)>=ans[j] && ans[j]!=-1.0)) st.pop_back();
+                else break;
+            }
+            if(!st.empty()){
+                int j=st.back();
+                int s2=cars[j][1],p2=cars[j][0];
+                double time=(double)(p2-p1)/(s1-s2);
+                ans[i]=time;
+            }
+            st.push_back(i);
+        }
+        return ans;
+    }
+};
