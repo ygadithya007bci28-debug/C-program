@@ -1,0 +1,27 @@
+#include <string.h>
+
+int minimumDeletions(char *s) {
+    int n = strlen(s);
+    int ans = n;              // maximum possible deletions
+    int bCount = 0;
+    int aCount = 0;
+
+    // initial count of 'a'
+    for (int i = 0; i < n; i++)
+        if (s[i] == 'a') aCount++;
+
+    for (int i = 0; i < n; i++) {
+        if (s[i] == 'a')
+            aCount--;         // this 'a' is no longer on the right
+
+        // compute deletions for split at i
+        int deletions = bCount + aCount;
+        if (deletions < ans)
+            ans = deletions;
+
+        if (s[i] == 'b')
+            bCount++;         // count 'b' on left side
+    }
+
+    return ans;
+}
